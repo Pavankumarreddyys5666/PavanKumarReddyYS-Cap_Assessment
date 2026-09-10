@@ -171,6 +171,5 @@ public class DemoWebShop {
 		source.renameTo(destination);
 
 		System.out.println("Laptop screenshot captured successfully.");
-
 	}
 }
