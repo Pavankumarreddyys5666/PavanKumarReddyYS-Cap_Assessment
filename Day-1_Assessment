@@ -70,7 +70,6 @@ public class SauseDemo {
 		File src=tks.getScreenshotAs(OutputType.FILE);
 		File dest=new File("./products-page/saucedemo.png");
 		FileHandler.copy(src, dest);
-
     }
 }
 
