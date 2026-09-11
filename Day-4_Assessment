@@ -5,53 +5,31 @@ package Assessment;
 import java.time.Duration;
 
 import java.util.List;
-import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-public class Demoapp {
+public class DemoWebShopTextFields {
 
-	public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
 
-		WebDriver driver = new ChromeDriver();
+        WebDriver driver = new ChromeDriver();
 
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-		driver.get("https://demoapps.qspiders.com/ui/datePick?sublist=0");
-
-		WebElement calendar = driver.findElement(By.xpath("//input"));
-		calendar.click();
-
-		WebElement nextMonth = driver.findElement(By.xpath("//button[contains(@class,'react-datepicker__navigation--next')]"));
-		nextMonth.click();
-
-		List<WebElement> dates = driver.findElements(By.xpath("//div[contains(@class,'react-datepicker__day') and @role='option' and not(contains(@class,'outside-month'))]"));
-
-		Random random = new Random();
-		WebElement date = dates.get(random.nextInt(dates.size()));
-		String selectedDate = date.getText();
-
-		System.out.println("Randomly Selected Date: " + selectedDate);
-
-		date.click();
-
-		String actualDate = calendar.getAttribute("value");
-
-		System.out.println("Displayed Date: " + actualDate);
-
-		if (actualDate != null && !actualDate.isEmpty()) {
-			System.out.println("Test Case Passed");
-		} else {
-			System.out.println("Test Case Failed");
-		}
-
-		driver.quit();
-	}
-
+        driver.get("https://demowebshop.tricentis.com/");
+        
+        List<WebElement> textfields=driver.findElements(By.tagName("input"));
+        System.out.println("Number of textfields:" + textfields.size());
+        
+        WebElement ele=driver.findElement(By.id("small-searchterms"));
+        ele.sendKeys("mobiles");    
+        System.out.println(ele);
+}
+}
 
 
 
