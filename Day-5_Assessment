@@ -1,0 +1,184 @@
+Test CAse-1:
+
+package DataDrivenTesting;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Properties;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class DemoWebShopProperty {
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        // Create object of Properties class
+        Properties prop = new Properties();
+
+        // Read property file
+        FileInputStream fis = new FileInputStream(
+                "./src/test/resources/DDT/data.properties");
+
+        prop.load(fis);
+
+        // Launch browser
+        WebDriver driver = new ChromeDriver();
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Navigate to DemoWebShop
+        driver.get("https://demowebshop.tricentis.com/");
+
+        // Click Login
+        driver.findElement(By.linkText("Log in")).click();
+
+        // Read data from property file
+        String email = prop.getProperty("email");
+        String password = prop.getProperty("password");
+
+        // Enter email
+        driver.findElement(By.id("Email")).sendKeys(email);
+
+        // Enter password
+        driver.findElement(By.id("Password")).sendKeys(password);
+
+        // Click Login
+        driver.findElement(By.cssSelector("input[value='Log in']")).click();
+
+        Thread.sleep(3000);
+
+        driver.quit();
+    }
+}
+
+Test Case-2:
+
+package DataDrivenTesting;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class OrangeHRMExcel {
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        // Read Excel file
+        FileInputStream fis = new FileInputStream(
+                "./src/test/resources/DDT/login.xlsx");
+
+        Workbook workbook = new XSSFWorkbook(fis);
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+        // Read second row
+        Row row = sheet.getRow(1);
+
+        String username = row.getCell(0).getStringCellValue();
+        String password = row.getCell(1).getStringCellValue();
+
+        workbook.close();
+        fis.close();
+
+        // Launch browser
+        WebDriver driver = new ChromeDriver();
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Navigate to OrangeHRM
+        driver.get("https://opensource-demo.orangehrmlive.com/");
+
+        // Enter username
+        driver.findElement(By.name("username")).sendKeys(username);
+
+        // Enter password
+        driver.findElement(By.name("password")).sendKeys(password);
+
+        // Click Login
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+
+        Thread.sleep(3000);
+
+        driver.quit();
+    }
+}
+
+Test CAse-3:
+
+package DataDrivenTesting;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.Duration;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class DemoAppJson {
+
+    public static void main(String[] args)
+            throws IOException, ParseException, InterruptedException {
+
+        // Create JSON parser
+        JSONParser parser = new JSONParser();
+
+        // Read JSON file
+        FileReader reader = new FileReader(
+                "./src/test/resources/DDT/data.json");
+
+        Object obj = parser.parse(reader);
+
+        JSONObject json = (JSONObject) obj;
+
+        // Read data from JSON
+        String name = (String) json.get("name");
+        String email = (String) json.get("email");
+        String password = (String) json.get("password");
+
+        reader.close();
+
+        // Launch browser
+        WebDriver driver = new ChromeDriver();
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Navigate to DemoApps
+        driver.get("https://demoapps.qspiders.com/");
+
+        // Enter Name
+        driver.findElement(By.id("name")).sendKeys(name);
+
+        // Enter Email
+        driver.findElement(By.id("email")).sendKeys(email);
+
+        // Enter Password
+        driver.findElement(By.id("password")).sendKeys(password);
+
+        // Click Submit/Login
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+        Thread.sleep(3000);
+
+        driver.quit();
+    }
+}
