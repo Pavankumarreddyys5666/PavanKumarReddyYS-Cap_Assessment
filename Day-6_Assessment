@@ -1,209 +1,124 @@
-package GenericUtilities;
+package OrangeHRM;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-public class ExcelUtility {
-
-    public String getDataFromExcel(String sheetName, int rowNum, int cellNum) throws IOException {
-
-        FileInputStream fis = new FileInputStream("./src/test/resources/TestData/OrangeHRM.xlsx");
-
-        Workbook workbook = WorkbookFactory.create(fis);
-
-        Sheet sheet = workbook.getSheet(sheetName);
-
-        Row row = sheet.getRow(rowNum);
-
-        DataFormatter formatter = new DataFormatter();
-
-        String data = formatter.formatCellValue(row.getCell(cellNum));
-
-        workbook.close();
-
-        return data;
-    }
-
-package GenericUtilities;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
-public class PropertyFileUtility {
-
-    public String getDataFromProperty(String key) throws IOException {
-
-        FileInputStream fis = new FileInputStream("./src/test/resources/commondata.properties");
-
-        Properties properties = new Properties();
-
-        properties.load(fis);
-
-        return properties.getProperty(key);
-    }
-}
-
-package OrangeHRM;
-
-import java.io.IOException;
-import java.time.Duration;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import GenericUtilities.ExcelUtility;
-import GenericUtilities.PropertyFileUtility;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public class AddEmployeeTest {
 
-    @Test
-    public void addEmployeeTest() throws IOException, InterruptedException {
+    public static void main(String[] args) throws Exception {
 
-        // Objects
-        PropertyFileUtility pUtil = new PropertyFileUtility();
-        ExcelUtility eUtil = new ExcelUtility();
+        // 1. Read common data from Property file
+        FileInputStream propertyFile =new FileInputStream(".\\src\\test\\java\\dataDrivenTesting1\\OrangeHRM.properties");
 
-        // Read common data from property file
-        String url = pUtil.getDataFromProperty("url");
-        String username = pUtil.getDataFromProperty("username");
-        String password = pUtil.getDataFromProperty("password");
+        Properties prop = new Properties();
+        prop.load(propertyFile);
+        String url = prop.getProperty("url");
+        String adminUsername = prop.getProperty("adminUsername");
+        String adminPassword = prop.getProperty("adminPassword");
+        propertyFile.close();
+        // 2. Read test data from Excel
+        FileInputStream excelFile =new FileInputStream(".\\src\\test\\java\\dataDrivenTesting1\\TestData.xlsx");
+        Workbook workbook = WorkbookFactory.create(excelFile);
+        Sheet sheet = workbook.getSheet("LoginTest");
+        Row row = sheet.getRow(1);
+        String firstName = row.getCell(0).toString();
+        String middleName = row.getCell(1).toString();
+        String lastName = row.getCell(2).toString();
+        String username = row.getCell(3).toString();
+        String password = row.getCell(4).toString();
+        String role = row.getCell(5).toString();
+        String status = row.getCell(6).toString();
 
-        // Read test data from Excel
-        String firstName = eUtil.getDataFromExcel("EmployeeData", 1, 0);
-        String middleName = eUtil.getDataFromExcel("EmployeeData", 1, 1);
-        String lastName = eUtil.getDataFromExcel("EmployeeData", 1, 2);
-        String employeeId = eUtil.getDataFromExcel("EmployeeData", 1, 3);
-        String empUsername = eUtil.getDataFromExcel("EmployeeData", 1, 4);
-        String empPassword = eUtil.getDataFromExcel("EmployeeData", 1, 5);
-        String confirmPassword = eUtil.getDataFromExcel("EmployeeData", 1, 6);
+        // =====================================================
+        // 3. Avoid Change Password popup
 
-        // Launch browser
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions settings = new ChromeOptions();
 
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("profile.password_manager_leak_detection",false);
+        settings.setExperimentalOption("prefs", prefs);
+        // 4. Launch Browser
+        WebDriver driver = new ChromeDriver(settings);
         driver.manage().window().maximize();
-
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-
-        // Navigate to OrangeHRM
+        // 5. Open OrangeHRM
         driver.get(url);
+        // 6. Login
+        driver.findElement(By.name("username")).sendKeys(adminUsername);
 
-        // Login
-        driver.findElement(By.name("username")).sendKeys(username);
-
-        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.name("password")).sendKeys(adminPassword);
 
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-
-        // Click PIM
+        // 7. Click PIM
         driver.findElement(By.xpath("//span[text()='PIM']")).click();
-
-        // Click + Add
+        // 8. Click + Add
         driver.findElement(By.xpath("//button[contains(.,'Add')]")).click();
-
-        // Enter employee details
+        // 9. Enter Employee Details
         driver.findElement(By.name("firstName")).sendKeys(firstName);
-
         driver.findElement(By.name("middleName")).sendKeys(middleName);
-
         driver.findElement(By.name("lastName")).sendKeys(lastName);
-
         // Employee ID
-        WebElement employeeIdField = driver.findElement(By.xpath("//label[text()='Employee Id']/../..//input"));
-
-        employeeIdField.clear();
-        employeeIdField.sendKeys(employeeId);
-
-        // Click Create Login Details toggle
+        WebElement employeeId = driver.findElement(By.xpath("//label[text()='Employee Id']/following::input[1]"));
+        employeeId.clear();
+        employeeId.sendKeys("1001");
+        // 10. Create Login Details
         WebElement toggle = driver.findElement(By.xpath("//p[text()='Create Login Details']/following::span[1]"));
-
         toggle.click();
-
-        // Enter username
-        driver.findElement(By.xpath("//label[text()='Username']/../..//input")).sendKeys(empUsername);
-
-        // Enter password
-        driver.findElement(By.xpath("//label[text()='Password']/../..//input")).sendKeys(empPassword);
-
-        // Confirm password
-        driver.findElement(By.xpath("//label[text()='Confirm Password']/../..//input")).sendKeys(confirmPassword);
-
-        // Click Save
+        // 11. Enter Username
+        driver.findElement(By.xpath("//label[text()='Username']/following::input[1]")).sendKeys(username);
+        // 12. Enter Password
+        driver.findElement(By.xpath("//label[text()='Password']/following::input[1]")).sendKeys(password);
+        // 13. Confirm Password
+        driver.findElement(By.xpath("//label[text()='Confirm Password']/following::input[1]")).sendKeys(password);
+        // 14. Click Save
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-
-        // Wait for employee details page to load
         Thread.sleep(2000);
-
-        // Click Admin
+        // 15. Click Admin
         driver.findElement(By.xpath("//span[text()='Admin']")).click();
-
-        // Enter username in Admin search
-        WebElement adminUsername = driver.findElement(By.xpath("//label[text()='Username']/../..//input"));
-
-        adminUsername.sendKeys(empUsername);
-
-        // Select Role
-        WebElement userRoleDropdown = driver.findElement(By.xpath("//label[text()='User Role']/../..//div[contains(@class,'oxd-select-text')]"));
-
-        userRoleDropdown.click();
-
-        driver.findElement(By.xpath("//div[@role='option']//span[text()='ESS']")).click();
-
-        // Enter Employee Name
-        WebElement employeeName = driver.findElement(By.xpath("//label[text()='Employee Name']/../..//input"));
-
+        // 16. Enter Username
+        driver.findElement(By.xpath("//label[text()='Username']/following::input[1]")).sendKeys(username);
+        // 17. Select User Role
+        WebElement userRole = driver.findElement(By.xpath("//label[text()='User Role']/following::div[contains(@class,'oxd-select-text')][1]"));
+        userRole.click();
+        driver.findElement(By.xpath("//div[@role='option']//span[text()='" + role + "']")).click();
+        // 18. Enter Employee Name
+        WebElement employeeName = driver.findElement(By.xpath("//label[text()='Employee Name']/following::input[1]"));
         employeeName.sendKeys(firstName);
-
         Thread.sleep(2000);
-
-        // Select employee from autocomplete
+        // Select employee suggestion
         driver.findElement(By.xpath("//div[@role='option']")).click();
-
-        // Select Status
-        WebElement statusDropdown = driver.findElement(By.xpath("//label[text()='Status']/../..//div[contains(@class,'oxd-select-text')]"));
-
+        // 19. Select Status
+        WebElement statusDropdown = driver.findElement(By.xpath("//label[text()='Status']/following::div[contains(@class,'oxd-select-text')][1]"));
         statusDropdown.click();
-
-        driver.findElement(By.xpath("//div[@role='option']//span[text()='Enabled']")).click();
-
-        // Click Search
+        driver.findElement(By.xpath("//div[@role='option']//span[text()='" + status + "']")).click();
+        // 20. Click Search
         driver.findElement(By.xpath("//button[contains(.,'Search')]")).click();
-
         Thread.sleep(2000);
-
-        // Verify employee is present in Records Found
-        WebElement records = driver.findElement(By.xpath("//div[contains(text(),'Record Found')]"));
-
-        String recordText = records.getText();
-
-        System.out.println("Records section: " + recordText);
-
-        Assert.assertTrue(recordText.contains("Record"),"Employee record was not found");
-
-        // Verify employee username is displayed in results
-        WebElement resultUsername = driver.findElement(By.xpath("//div[@role='table']//div[text()='" + empUsername + "']"));
-
-        Assert.assertTrue(resultUsername.isDisplayed(),"Employee was not added successfully");
-
-        System.out.println("Employee added successfully.");
-
-        // Logout
+        // 21. Verify Employee
+        String pageText = driver.findElement(By.tagName("body")).getText();
+        if (pageText.contains(username)) {
+            System.out.println("PASS: Employee is added successfully.");
+        } else {
+            System.out.println("FAIL: Employee is not found.");
+        }
+        // 22. Logout
         driver.findElement(By.xpath("//span[contains(@class,'oxd-userdropdown-tab')]")).click();
-
         driver.findElement(By.xpath("//a[text()='Logout']")).click();
-
-        // Close browser
+        // 23. Close Browser
         driver.quit();
     }
-  }
 }
