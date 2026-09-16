@@ -1,0 +1,617 @@
+Test Case:
+
+
+// properties file
+
+url=https://opensource-demo.orangehrmlive.com/
+username=Admin
+password=admin123
+
+
+//AddCandidatepage
+
+package POM;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class AddPage {
+
+	WebDriver driver;
+
+	public AddPage(WebDriver driver) {
+		this.driver = driver;
+		PageFactory.initElements(driver, this);
+	}
+
+	@FindBy(xpath="//input[@name='firstName']")
+	private WebElement Fname;
+
+	@FindBy(xpath="//input[@name='middleName']")
+	private WebElement Mname;
+
+	@FindBy(xpath="//input[@name='lastName']")
+	private WebElement Lname;
+
+	@FindBy(xpath="//div[@class='oxd-select-text oxd-select-text--active']")
+	private WebElement vacy;
+
+	@FindBy(xpath="//div[@role='option']//span[normalize-space()='Sales Representative']")
+	private WebElement salesres;
+
+	@FindBy(xpath="(//input[@class='oxd-input oxd-input--active'])[2]")
+	private WebElement email;
+
+	@FindBy(xpath="(//input[@class='oxd-input oxd-input--active'])[3]")
+	private WebElement Cno;
+
+	@FindBy(xpath="//input[@type='file']")
+	private WebElement Resume1;
+
+	@FindBy(xpath="//input[@placeholder='yyyy-dd-mm']")
+	private WebElement Date;
+
+	@FindBy(xpath="//button[@type='submit']")
+	private WebElement Save;
+
+	public void getFname(String value) {
+		Fname.sendKeys(value);
+	}
+
+	public void getMname(String value) {
+		Mname.sendKeys(value);
+	}
+
+	public void getLname(String value) {
+		Lname.sendKeys(value);
+	}
+
+	public void getVacy() {
+		vacy.click();
+		salesres.click();
+	}
+
+	public void getEmail(String value) {
+		email.sendKeys(value);
+	}
+
+	public void getCno(String value) {
+		Cno.sendKeys(value);
+	}
+
+	public void getResume1(String value) {
+		Resume1.sendKeys(value);
+	}
+
+	public void getDate(String value) {
+		Date.click();
+		Date.clear();
+		Date.sendKeys(value);
+	}
+
+	public void getSave() {
+		Save.click();
+	}
+}
+
+// Candidatepage
+package POM;
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class Candidate {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By candidatesTab = By.xpath("//a[normalize-space()='Candidates']");
+
+    By jobTitle = By.xpath("//label[normalize-space()='Job Title']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By vacancy = By.xpath("//label[normalize-space()='Vacancy']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By hiringManager = By.xpath("//label[normalize-space()='Hiring Manager']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By status = By.xpath("//label[normalize-space()='Status']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By candidateName = By.xpath("//label[normalize-space()='Candidate Name']/following-sibling::div//input");
+
+    By fromDate = By.xpath("//input[@placeholder='From']");
+
+    By toDate = By.xpath("//input[@placeholder='To']");
+
+    By methodOfApplication = By.xpath("//label[normalize-space()='Method of Application']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By searchButton = By.xpath("//button[normalize-space()='Search']");
+
+    public Candidate(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Click Candidates
+    public void clickCandidates() throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(candidatesTab)).click();
+
+        Thread.sleep(3000);
+    }
+
+    // Select Job Title
+    public void selectJobTitle(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(jobTitle)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Select Vacancy
+    public void selectVacancy(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(vacancy)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Select Hiring Manager
+    public void selectHiringManager(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(hiringManager)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Select Status
+    public void selectStatus(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(status)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Enter Candidate Name
+    public void enterCandidateName(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(candidateName));
+
+        element.click();
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(3000);
+
+        By suggestion = By.xpath("//div[@role='option'][1]");
+
+        wait.until(ExpectedConditions.elementToBeClickable(suggestion)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Enter From Date
+    public void enterFromDate(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(fromDate));
+
+        element.click();
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(1000);
+
+        element.sendKeys("\t");
+
+        Thread.sleep(1000);
+    }
+
+    // Enter To Date
+    public void enterToDate(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(toDate));
+
+        element.click();
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(1000);
+
+        element.sendKeys("\t");
+
+        Thread.sleep(1000);
+    }
+
+    // Select Method
+    public void selectMethod(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(methodOfApplication)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Click Search
+    public void clickSearch() throws InterruptedException {
+
+        WebElement search = wait.until(ExpectedConditions.elementToBeClickable(searchButton));
+
+        search.click();
+
+        Thread.sleep(5000);
+    }
+
+    // Verify Candidate
+    public boolean verifyCandidate(String firstName, String lastName) {
+
+        String bodyText = driver.findElement(By.tagName("body")).getText();
+
+        String fullName = firstName + " " + lastName;
+
+        return bodyText.contains(fullName);
+    }
+}
+
+
+// Loginpage
+package POM;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class Login {
+
+    WebDriver driver;
+
+    By username = By.name("username");
+    By password = By.name("password");
+    By loginButton = By.xpath("//button[@type='submit']");
+
+    public Login(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Login
+    public void login(String user, String pass) throws InterruptedException {
+
+        Thread.sleep(2000);
+
+        driver.findElement(username).sendKeys(user);
+
+        Thread.sleep(1000);
+
+        driver.findElement(password).sendKeys(pass);
+
+        Thread.sleep(1000);
+
+        driver.findElement(loginButton).click();
+
+        Thread.sleep(4000);
+    }
+}
+
+// Recruitmentpage
+package POM;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class Recruitment {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By recruitment = By.xpath("//span[normalize-space()='Recruitment']");
+
+    By addButton = By.xpath("//button[contains(normalize-space(),'Add')]");
+
+    By firstName = By.xpath("//label[normalize-space()='First Name']/following-sibling::div//input");
+
+    By middleName = By.xpath("//label[normalize-space()='Middle Name']/following-sibling::div//input");
+
+    By lastName = By.xpath("//label[normalize-space()='Last Name']/following-sibling::div//input");
+
+    By vacancy = By.xpath("//label[normalize-space()='Vacancy']/following-sibling::div//div[contains(@class,'oxd-select-text')]");
+
+    By email = By.xpath("//label[normalize-space()='Email']/following-sibling::div//input");
+
+    By contactNumber = By.xpath("//label[normalize-space()='Contact Number']/following-sibling::div//input");
+
+    By resume = By.xpath("//input[@type='file']");
+
+    By applicationDate = By.xpath("//label[normalize-space()='Date of Application']/following-sibling::div//input");
+
+    By saveButton = By.xpath("//button[normalize-space()='Save']");
+
+    public Recruitment(WebDriver driver) {
+
+        this.driver = driver;
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Click Recruitment
+    public void clickRecruitment() throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(recruitment)).click();
+
+        Thread.sleep(3000);
+    }
+
+    // Click Add
+    public void clickAdd() throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(addButton)).click();
+
+        Thread.sleep(3000);
+    }
+
+    // Enter First Name
+    public void enterFirstName(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(firstName));
+
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(700);
+    }
+
+    // Enter Middle Name
+    public void enterMiddleName(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(middleName));
+
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(700);
+    }
+
+    // Enter Last Name
+    public void enterLastName(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(lastName));
+
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(700);
+    }
+
+    // Select Vacancy
+    public void selectVacancy(String value) throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(vacancy)).click();
+
+        Thread.sleep(1000);
+
+        By option = By.xpath("//div[@role='option']//span[normalize-space()='" + value + "']");
+
+        wait.until(ExpectedConditions.elementToBeClickable(option)).click();
+
+        Thread.sleep(1500);
+    }
+
+    // Enter Email
+    public void enterEmail(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(email));
+
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(700);
+    }
+
+    // Enter Contact Number
+    public void enterMobile(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(contactNumber));
+
+        element.clear();
+        element.sendKeys(value);
+
+        Thread.sleep(700);
+    }
+
+    // Upload Resume
+    public void uploadResume(String path) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(resume));
+
+        element.sendKeys(path);
+
+        Thread.sleep(3000);
+    }
+
+    // Enter Application Date
+    public void enterApplicationDate(String value) throws InterruptedException {
+
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(applicationDate));
+
+        element.click();
+
+        element.clear();
+
+        element.sendKeys(value);
+
+        element.sendKeys("\t");
+
+        Thread.sleep(1500);
+    }
+
+    // Click Save
+    public void clickSave() throws InterruptedException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(saveButton)).click();
+
+        Thread.sleep(5000);
+    }
+}
+
+// AddCandidateTest
+
+package OrangeHRM;
+
+import java.io.File;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class AddcandidateTest {
+
+    public static void main(String[] args) throws Exception {
+
+        // Open browser
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Open OrangeHRM
+        driver.get( "https://opensource-demo.orangehrmlive.com/");
+
+        // LOGIN
+        driver.findElement(By.name("username")).sendKeys("Admin");
+        driver.findElement(By.name("password")).sendKeys("admin123");
+        driver.findElement(By.xpath("//button[@type='submit']")) .click();
+        Thread.sleep(3000);
+        System.out.println("Login successful");
+
+        // RECRUITMENT
+        driver.findElement(By.xpath("//span[text()='Recruitment']")).click();
+        Thread.sleep(5000);
+
+        // ADD
+        driver.findElement(By.xpath("//button[contains(.,'Add')]")).click();
+        Thread.sleep(5000);
+
+        // FIRST NAME
+        driver.findElement(By.name("firstName")).sendKeys("Pavan");
+
+        // MIDDLE NAME
+        driver.findElement(By.name("middleName")).sendKeys("Kumar");
+
+        // LAST NAME
+        driver.findElement(By.name("lastName")).sendKeys("Reddy");
+
+        // VACANCY
+        driver.findElement(By.xpath("//label[text()='Vacancy']" + "/following::div[contains(@class," + "'oxd-select-text')][1]")).click();
+        Thread.sleep(5000);
+
+        List<WebElement> vacancy = driver.findElements(By.xpath("//div[@role='option']"));
+        if (vacancy.size() > 1) {
+            vacancy.get(1).click();
+        }
+
+        // EMAIL
+        driver.findElement(By.xpath( "//label[text()='Email']" + "/following::input[1]")).sendKeys("pavan123@gmail.com");
+
+        // CONTACT NUMBER
+        driver.findElement(By.xpath("//label[text()='Contact Number']"  + "/following::input[1]")) .sendKeys("9876543210");
+
+        // UPLOAD RESUME
+        String resumePath = System.getProperty("user.dir") + ".\\src\\test\\resources\\DDT\\XlSauceDemo.xlsx";
+        File resume = new File(resumePath);
+        if (resume.exists()) {
+            driver.findElement( By.xpath("//input[@type='file']")) .sendKeys(resume.getAbsolutePath());
+            System.out.println("Resume uploaded");
+        } else {
+            System.out.println("Resume not found:");
+            System.out.println(resumePath);
+        }
+
+        // SAVE
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+        Thread.sleep(5000);
+        System.out.println("Candidate saved");
+
+        // CANDIDATES
+        driver.findElement( By.xpath("//a[text()='Candidates']")).click();
+        Thread.sleep(5000);
+
+        // CANDIDATE NAME
+        List<WebElement> inputs = driver.findElements(By.xpath("//input"));
+        System.out.println("Number of input fields: " + inputs.size());
+        if (inputs.size() > 0) {
+            inputs.get(0).sendKeys("Pavan");
+        } else {
+            System.out.println("Candidate Name field not found");
+        }
+
+        // SEARCH
+        List<WebElement> buttons = driver.findElements(By.xpath("//button"));
+        System.out.println( "Number of buttons: " + buttons.size());
+        boolean searchClicked = false;
+        for (WebElement button : buttons) {
+            String text = button.getText().trim();
+            System.out.println("Button: " + text);
+            if (text.equalsIgnoreCase("Search")) {
+                button.click();
+                searchClicked = true;
+                break;
+            }
+        }
+        if (!searchClicked) {
+            System.out.println("Search button not found");
+        } else {
+            System.out.println("Search button clicked");
+        }
+        Thread.sleep(5000);
+
+        // VERIFY
+        String pageText = driver.findElement(By.tagName("body")).getText();
+        if (pageText.contains("Pavan") && pageText.contains("Reddy")) {
+            System.out.println("PASS: Candidate found");
+        } else {
+            System.out.println("FAIL: Candidate not found");
+        }
+
+        // LOGOUT
+        driver.findElement(By.xpath("//span[contains(@class," + "'oxd-userdropdown-tab')]")).click();
+        Thread.sleep(5000);
+        driver.findElement(By.xpath("//a[text()='Logout']")).click();
+        Thread.sleep(5000);
+        System.out.println("Logout successful");
+    }
+}
+
