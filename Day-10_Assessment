@@ -1,0 +1,409 @@
+Test Case: //Testcase
+
+NAvigate to SauceDemo Application.
+Login using a valid username and password.
+Verify that the Products page is displayed.
+Add Sauce Labs Backpack to the cart.
+Verify that the cart contains 1 item.
+Open the cart.
+Verify that Sauce Labs Backpack is displayed.
+Click on  to checkout.
+Enter: Fisrt Name ,Last Name and postal code and click on continue.
+Verify that the Checkout: Overview page is displayed.
+Click Finish.
+Verify the message "Thank you for your order!".
+Close the browser.
+Note : Use Two test MEthods
+1.loginTest()
+2.oderPalcementTest()
+
+Maintain property file,Excel File,Pom Pages and Use TestNg annotations 
+
+// BaseClass.java
+
+package BaseClass;
+
+import java.io.IOException;
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+
+import GenericUtilities.PropertyFileUtility;
+
+public class BaseTest {
+    protected WebDriver driver;
+    protected PropertyFileUtility pUtil;
+
+    @BeforeClass
+    public void openApplication() throws IOException {
+
+        // Create property file object
+        pUtil = new PropertyFileUtility();
+
+        // Read browser and URL from property file
+        String browser = pUtil.getDataFromProperties("browser");
+        String url = pUtil.getDataFromProperties("url");
+
+        if (browser.equalsIgnoreCase("chrome")) {
+            driver = new ChromeDriver();
+        } else {
+            System.out.println("Invalid browser");
+        }
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get(url);
+        System.out.println("Application launched successfully");
+    }
+    @AfterClass
+    public void closeApplication() {
+        if (driver != null) {
+            driver.quit();
+            System.out.println("Browser closed");
+        }
+    }
+}
+
+
+// POM Files
+
+// LoginPage
+
+package POM;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class Login {
+    WebDriver driver;
+    // Locators
+    private By usernameTextField = By.id("user-name");
+    private By passwordTextField = By.id("password");
+    private By loginButton = By.id("login-button");
+    // Constructor
+    public Login(WebDriver driver) {
+        this.driver = driver;
+    }
+    // Enter username
+    public void enterUsername(String username) {
+        driver.findElement(usernameTextField).sendKeys(username);
+    }
+    // Enter password
+    public void enterPassword(String password) {
+        driver.findElement(passwordTextField).sendKeys(password);
+    }
+    // Click login
+    public void clickLogin() {
+        driver.findElement(loginButton).click();
+    }
+    // Complete login
+    public void login(String username, String password) {
+        enterUsername(username);
+        enterPassword(password);
+        clickLogin();
+    }
+}
+
+
+// ProductsPage
+
+package POM;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class ProductsPage {
+    WebDriver driver;
+    private By productsText = By.xpath("//span[text()='Products']");
+    private By backpackAddToCart = By.id("add-to-cart-sauce-labs-backpack");
+    private By cartIcon = By.className("shopping_cart_link");
+    private By cartBadge = By.className("shopping_cart_badge");
+    public ProductsPage(WebDriver driver) {
+        this.driver = driver;
+    }
+    public boolean isProductsPageDisplayed() {
+        return driver.findElement(productsText).isDisplayed();
+    }
+    public void addBackpackToCart() {
+        driver.findElement(backpackAddToCart).click();
+    }
+    public String getCartItemCount() {
+        return driver.findElement(cartBadge).getText();
+    }
+    public void clickCart() {
+        driver.findElement(cartIcon).click();
+    }
+}
+
+// CartPage
+
+package POM;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class CartPage {
+    WebDriver driver;
+    private By backpack = By.xpath("//div[text()='Sauce Labs Backpack']");
+    private By checkoutButton = By.id("checkout");
+    public CartPage(WebDriver driver) {
+        this.driver = driver;
+    }
+    public boolean isBackpackDisplayed() {
+        return driver.findElement(backpack).isDisplayed();
+    }
+    public void clickCheckout() {
+        driver.findElement(checkoutButton).click();
+    }
+}
+
+// CheckoutPage
+
+package POM;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class CheckoutPage {
+    WebDriver driver;
+    private By firstName = By.id("first-name");
+    private By lastName = By.id("last-name");
+    private By postalCode = By.id("postal-code");
+    private By continueButton = By.id("continue");
+
+    public CheckoutPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void enterFirstName(String name) {
+        driver.findElement(firstName).sendKeys(name);
+    }
+
+    public void enterLastName(String name) {
+        driver.findElement(lastName).sendKeys(name);
+    }
+
+    public void enterPostalCode(String code) {
+        driver.findElement(postalCode).sendKeys(code);
+    }
+
+    public void clickContinue() {
+        driver.findElement(continueButton).click();
+    }
+
+    public void enterDetails(
+            String firstNameValue,
+            String lastNameValue,
+            String postalCodeValue) {
+
+        enterFirstName(firstNameValue);
+        enterLastName(lastNameValue);
+        enterPostalCode(postalCodeValue);
+        clickContinue();
+    }
+}
+
+// CheckoutOverviewPage
+
+package POM;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class CheckoutOverviewPage {
+    WebDriver driver;
+    private By overviewText = By.xpath("//span[text()='Checkout: Overview']");
+    private By finishButton = By.id("finish");
+    private By thankYouMessage = By.xpath("//h2[text()='Thank you for your order!']");
+
+    public CheckoutOverviewPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public boolean isOverviewPageDisplayed() {
+        return driver.findElement(overviewText).isDisplayed();
+    }
+
+    public void clickFinish() {
+        driver.findElement(finishButton).click();
+    }
+
+    public String getThankYouMessage() {
+        return driver.findElement(thankYouMessage).getText();
+    }
+}
+
+// Properties File
+
+url=https://www.saucedemo.com/
+browser=chrome
+username=standard_user
+password=secret_sauce
+
+// Excel File
+
+| FirstName | LastName | PostalCode |
+| --------- | -------- | ---------- |
+| Pavan     | Reddy    | 583101     |
+
+
+// ExcelUtility.java
+
+package GenericUtilities;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+public class ExcelUtility {
+    Workbook workbook;
+    public ExcelUtility() throws IOException {
+        FileInputStream fis = new FileInputStream("./src/test/resources/TestData.xlsx");
+        workbook = WorkbookFactory.create(fis);
+    }
+
+    public String getDataFromExcel( String sheetName, int rowNumber, int cellNumber) {
+        Sheet sheet = workbook.getSheet(sheetName);
+        Row row =  sheet.getRow(rowNumber);
+        DataFormatter formatter =  new DataFormatter();
+        return formatter.formatCellValue(row.getCell(cellNumber));
+    }
+    public void closeExcel() throws IOException {
+        workbook.close();
+    }
+}
+
+package GenericUtilities;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class PropertyFileUtility {
+    Properties properties;
+    public PropertyFileUtility() throws IOException {
+        FileInputStream fis =  new FileInputStream("./src/test/resources/config.properties");
+        properties = new Properties();
+        properties.load(fis);
+        fis.close();
+    }
+    public String getDataFromProperties(String key) {
+        return properties.getProperty(key);
+    }
+}
+
+// SauceDemoTest.java
+
+package SauceDemo;
+
+import java.io.IOException;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import BaseClass.BaseTest;
+import GenericUtilities.ExcelUtility;
+import POM.CartPage;
+import POM.CheckoutOverviewPage;
+import POM.CheckoutPage;
+import POM.Login;
+import POM.ProductsPage;
+
+public class SauceDemoTest extends BaseTest {
+
+    Login loginPage;
+    ProductsPage productsPage;
+    CartPage cartPage;
+    CheckoutPage checkoutPage;
+    CheckoutOverviewPage overviewPage;
+
+    ExcelUtility excelUtil;
+
+    // TEST CASE 1 : LOGIN TEST
+
+    @Test(priority = 1)
+    public void loginTest() {
+
+        // Get username and password from property file
+
+        String username = pUtil.getDataFromProperties("username");
+        String password =  pUtil.getDataFromProperties("password");
+
+        // Create Login POM object
+        loginPage = new Login(driver);
+
+        // Login
+        loginPage.login(username, password);
+
+        // Create Products Page object
+        productsPage = new ProductsPage(driver);
+
+        // Verify Products page
+        Assert.assertTrue( productsPage.isProductsPageDisplayed(), "Products page is not displayed");
+        System.out.println( "Login Test Passed");
+        System.out.println( "Products page is displayed");
+    }
+
+    // TEST CASE 2 : ORDER PLACEMENT TEST
+
+    @Test( priority = 2, dependsOnMethods = "loginTest" )
+    public void orderPlacementTest() throws IOException {
+
+        // Create Excel object
+        excelUtil =  new ExcelUtility();
+
+        // Read First Name
+        String firstName =  excelUtil.getDataFromExcel( "SauceDemo", 1, 0 );
+
+        // Read Last Name
+        String lastName = excelUtil.getDataFromExcel( "SauceDemo", 1, 1 );
+
+        // Read Postal Code
+        String postalCode = excelUtil.getDataFromExcel( "SauceDemo", 1, 2 );
+
+        // Add Sauce Labs Backpack
+        productsPage = new ProductsPage(driver);
+        productsPage.addBackpackToCart();
+
+        // Verify Cart Contains 1 Item
+        String cartCount =  productsPage.getCartItemCount();
+        Assert.assertEquals( cartCount, "1",  "Cart does not contain 1 item" );
+        System.out.println( "Cart contains 1 item");
+
+        // Open Cart
+        productsPage.clickCart();
+
+        // Verify Backpack
+        cartPage =  new CartPage(driver);
+        Assert.assertTrue( cartPage.isBackpackDisplayed(),  "Sauce Labs Backpack is not displayed" );
+        System.out.println("Sauce Labs Backpack is displayed");
+
+        // Click Checkout
+        cartPage.clickCheckout();
+
+        // Enter First Name, Last Name, Postal Code
+        checkoutPage = new CheckoutPage(driver);
+        checkoutPage.enterDetails( firstName, lastName, postalCode);
+
+        // Verify Checkout: Overview
+        overviewPage = new CheckoutOverviewPage(driver);
+        Assert.assertTrue( overviewPage.isOverviewPageDisplayed(), "Checkout: Overview page is not displayed");
+        System.out.println( "Checkout: Overview page is displayed");
+
+        // Click Finish
+        overviewPage.clickFinish();
+
+        // Verify Thank You Message
+        String actualMessage = overviewPage.getThankYouMessage();
+        Assert.assertEquals(actualMessage, "Thank you for your order!", "Order confirmation message is incorrect");
+        System.out.println("Thank you for your order!");
+    }
+}
+
