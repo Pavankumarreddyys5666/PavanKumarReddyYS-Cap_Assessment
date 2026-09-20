@@ -1,0 +1,839 @@
+//TestCase  - 1
+
+Login to orangeHrm application ->click on Recruitment link ->click on vacancies link ->enter vacancy name ,
+select job title,add description , select hiring manager, number of positons-> 
+click on save button 
+
+//BaseClass.java
+
+package GenericUtilities;
+
+import java.io.IOException;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterSuite;
+
+public class BaseClass {
+
+    protected WebDriver driver;
+
+    protected FileUtility fileUtil = new FileUtility();
+
+    protected ExcelUtility excelUtil = new ExcelUtility();
+
+    protected WebDriverUtility webUtil = new WebDriverUtility();
+
+    @BeforeSuite
+    public void beforeSuite() {
+
+        System.out.println("===== ORANGE HRM TEST SUITE STARTED =====");
+    }
+
+    @BeforeClass
+    public void setUp() throws IOException {
+
+        String browser = fileUtil.getDataFromProperties("browser");
+
+        if (browser.equalsIgnoreCase("chrome")) {
+
+            driver = new ChromeDriver();
+
+        } else {
+
+            throw new RuntimeException( "Unsupported browser: " + browser);
+        }
+
+        webUtil.maximizeWindow(driver);
+
+        webUtil.waitForPageLoad(driver);
+
+        driver.get( fileUtil.getDataFromProperties("url"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+
+        if (driver != null) {
+
+            driver.quit();
+        }
+    }
+
+    @AfterSuite
+    public void afterSuite() {
+
+        System.out.println( "===== ORANGE HRM TEST SUITE COMPLETED =====");
+    }
+}
+
+
+// ExcelUtility.java
+
+package GenericUtilities;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+public class ExcelUtility {
+
+    public String getDataFromExcel( String sheetName, int rowNum, int cellNum) throws EncryptedDocumentException, IOException {
+
+        FileInputStream fis = new FileInputStream( "./src/test/resources/HRMVacancy.xlsx");
+
+        Workbook workbook = WorkbookFactory.create(fis);
+
+        Sheet sheet = workbook.getSheet("Sheet1");
+
+        Cell cell = sheet.getRow(rowNum).getCell(cellNum);
+
+        DataFormatter formatter = new DataFormatter();
+
+        String data = formatter.formatCellValue(cell);
+
+        workbook.close();
+        fis.close();
+
+        return data;
+    }
+}
+
+// FileUtility.java
+
+package GenericUtilities;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class FileUtility {
+
+    public String getDataFromProperties(String key) throws IOException {
+
+        FileInputStream fis = new FileInputStream("./src/test/resources/config1.properties");
+
+        Properties properties = new Properties();
+
+        properties.load(fis);
+
+        fis.close();
+
+        return properties.getProperty(key);
+    }
+}
+
+//
+
+package GenericUtilities;
+
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+
+public class ListenerUtility implements ITestListener {
+
+    @Override
+    public void onTestStart( ITestResult result) {
+
+        System.out.println( "TEST STARTED : " + result.getName());
+    }
+
+    @Override
+    public void onTestSuccess( ITestResult result) {
+
+        System.out.println( "TEST PASSED : "  + result.getName());
+    }
+
+    @Override
+    public void onTestFailure( ITestResult result) {
+
+        System.out.println( "TEST FAILED : " + result.getName());
+    }
+
+    @Override
+    public void onTestSkipped( ITestResult result) {
+
+        System.out.println( "TEST SKIPPED : "  + result.getName());
+    }
+}
+
+// ScreenshotUtility.java
+
+package GenericUtilities;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import org.openqa.selenium.*;
+
+public class ScreenshotUtility {
+
+    public String takeScreenshot(WebDriver driver, String testName) throws IOException {
+
+        TakesScreenshot ts =  (TakesScreenshot) driver;
+
+        File source =  ts.getScreenshotAs(OutputType.FILE);
+
+        String path = "./screenshots/" + testName + ".png";
+
+        File destination = new File(path);
+
+        destination.getParentFile().mkdirs();
+
+        Files.copy(source.toPath(),  destination.toPath());
+
+        return path;
+    }
+}
+
+// WebDriverUtility.java
+
+package GenericUtilities;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class WebDriverUtility {
+
+    public void maximizeWindow(WebDriver driver) {
+        driver.manage().window().maximize();
+    }
+
+    public void waitForPageLoad(WebDriver driver) {
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    }
+
+    public void waitForElement(WebDriver driver, WebElement element) {
+
+        WebDriverWait wait = new WebDriverWait( driver, Duration.ofSeconds(20));
+
+        wait.until( ExpectedConditions.visibilityOf(element));
+    }
+
+    public void waitForElementClickable( WebDriver driver, WebElement element) {
+
+        WebDriverWait wait = new WebDriverWait( driver, Duration.ofSeconds(20));
+
+        wait.until( ExpectedConditions.elementToBeClickable(element));
+    }
+
+    public void click(WebDriver driver, WebElement element) {
+
+        waitForElementClickable(driver, element);
+
+        element.click();
+    }
+
+    public void selectByVisibleText( WebElement element, String text) {
+
+        Select select = new Select(element);
+
+        select.selectByVisibleText(text);
+    }
+}
+
+// POM Files
+
+// LoginPage.java
+
+package ObjectRepository;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+import GenericUtilities.WebDriverUtility;
+
+public class LoginPage {
+
+    WebDriver driver;
+
+    WebDriverUtility webUtil;
+
+    public LoginPage(WebDriver driver) {
+
+        this.driver = driver;
+
+        webUtil = new WebDriverUtility();
+
+        PageFactory.initElements( driver, this);
+    }
+
+    @FindBy(name = "username")
+    private WebElement usernameTF;
+
+    @FindBy(name = "password")
+    private WebElement passwordTF;
+
+    @FindBy(xpath = "//button[@type='submit']")
+    private WebElement loginButton;
+
+    public void login(String username, String password) {
+
+        usernameTF.clear();
+        usernameTF.sendKeys(username);
+
+        passwordTF.clear();
+        passwordTF.sendKeys(password);
+
+        webUtil.click( driver, loginButton);
+    }
+}
+
+//  HomePage.java
+
+package ObjectRepository;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+import GenericUtilities.WebDriverUtility;
+
+public class HomePage {
+
+    WebDriver driver;
+
+    WebDriverUtility webUtil;
+
+    public HomePage(WebDriver driver) {
+
+        this.driver = driver;
+
+        webUtil = new WebDriverUtility();
+
+        PageFactory.initElements( driver, this);
+    }
+
+    @FindBy(xpath = "//span[text()='Recruitment']")
+    private WebElement recruitmentLink;
+
+    @FindBy(xpath = "//span[text()='My Info']")
+    private WebElement myInfoLink;
+
+    @FindBy(xpath = "//p[contains(@class,'oxd-userdropdown-name')]")
+    private WebElement profileDropdown;
+
+    @FindBy(xpath = "//a[text()='Logout']")
+    private WebElement logoutButton;
+
+    public void clickRecruitment() {
+
+        webUtil.click( driver, recruitmentLink);
+    }
+
+    public void clickMyInfo() {
+
+        webUtil.click( driver,  myInfoLink);
+    }
+
+    public void logout() {
+
+        webUtil.click( driver, profileDropdown);
+
+        webUtil.click( driver, logoutButton);
+    }
+}
+
+// AddVacancyPage.java
+
+package ObjectRepository;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import GenericUtilities.WebDriverUtility;
+
+public class AddVacancyPage {
+
+    WebDriver driver;
+    WebDriverWait wait;
+    WebDriverUtility webUtil;
+
+    public AddVacancyPage(WebDriver driver) {
+
+        this.driver = driver;
+
+        wait = new WebDriverWait( driver, Duration.ofSeconds(20));
+
+        webUtil = new WebDriverUtility();
+
+        PageFactory.initElements( driver, this);
+    }
+
+    // ADD BUTTON
+
+    @FindBy(xpath = "//button[contains(.,'Add')]")
+    private WebElement addButton;
+
+    // VACANCY NAME
+
+    @FindBy(xpath =  "//label[text()='Vacancy Name']/../following-sibling::div//input")
+    private WebElement vacancyNameTF;
+
+    // JOB TITLE
+
+    @FindBy(xpath = "//label[text()='Job Title']/../following-sibling::div//div[contains(@class,'oxd-select-text')]")
+    private WebElement jobTitleDropdown;
+
+    // DESCRIPTION
+
+    @FindBy(xpath = "//textarea")
+    private WebElement descriptionTF;
+
+    // HIRING MANAGER
+
+    @FindBy(xpath =  "//label[text()='Hiring Manager']/../following-sibling::div//input")
+    private WebElement hiringManagerTF;
+
+    // NUMBER OF POSITIONS
+
+    @FindBy(xpath = "//label[text()='Number of Positions']/../following-sibling::div//input")
+    private WebElement numberOfPositionsTF;
+
+    // SAVE BUTTON
+
+    @FindBy(xpath = "//button[@type='submit']")
+    private WebElement saveButton;
+
+    // CLICK ADD
+
+    public void clickAdd() {
+
+        webUtil.click( driver, addButton);
+    }
+
+    // ENTER VACANCY NAME
+
+    public void enterVacancyName( String vacancyName) {
+
+        wait.until( ExpectedConditions.visibilityOf( vacancyNameTF));
+
+        vacancyNameTF.clear();
+
+        vacancyNameTF.sendKeys( vacancyName);
+    }
+
+    // SELECT JOB TITLE
+
+    public void selectJobTitle( String jobTitle) {
+
+        // Click Job Title dropdown
+        webUtil.click( driver, jobTitleDropdown);
+
+        // Wait for required option
+        WebElement option =  wait.until( ExpectedConditions  .elementToBeClickable(
+                                        By.xpath( "//div[@role='option']" +
+                                                "[contains(normalize-space(.),'" +
+                                                jobTitle +
+                                                "')]"
+                                        )
+                                )
+                );
+
+        // Select Job Title
+        option.click();
+    }
+
+    // ENTER DESCRIPTION
+
+    public void enterDescription(
+            String description) {
+
+        wait.until( ExpectedConditions.visibilityOf( descriptionTF));
+
+        descriptionTF.clear();
+
+        descriptionTF.sendKeys(
+                description);
+    }
+
+    // SELECT HIRING MANAGER
+
+    public void selectHiringManager( String manager) {
+
+        wait.until( ExpectedConditions.visibilityOf( hiringManagerTF));
+
+        // Clear existing value
+        hiringManagerTF.clear();
+
+        // Enter manager name
+        hiringManagerTF.sendKeys( manager);
+
+        WebElement option = wait.until( ExpectedConditions.elementToBeClickable(
+                                        By.xpath(
+                                                "//div[@role='option']" +
+                                                "[contains(normalize-space(.),'" +
+                                                manager +
+                                                "')]"
+                                        )
+                                )
+                );
+
+        // Select Hiring Manager
+        option.click();
+    }
+
+
+    // ENTER NUMBER OF POSITIONS
+
+    public void enterNumberOfPositions(
+            String positions) {
+
+        wait.until(ExpectedConditions.visibilityOf(numberOfPositionsTF));
+
+        numberOfPositionsTF.clear();
+
+        numberOfPositionsTF.sendKeys(positions);
+    }
+
+
+    // CLICK SAVE
+
+    public void clickSave() {
+
+        wait.until(ExpectedConditions.elementToBeClickable(saveButton));
+
+        saveButton.click();
+    }
+}
+
+// RecruitmentPage.java
+
+package ObjectRepository;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+import GenericUtilities.WebDriverUtility;
+
+public class RecruitmentPage {
+
+    WebDriver driver;
+
+    WebDriverUtility webUtil;
+
+    public RecruitmentPage(WebDriver driver) {
+
+        this.driver = driver;
+
+        webUtil = new WebDriverUtility();
+
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(xpath = "//a[text()='Vacancies']")
+    private WebElement vacanciesLink;
+
+    public void clickVacancies() {
+
+        webUtil.click(driver, vacanciesLink);
+    }
+}
+
+// MyInfoPage.java
+
+package ObjectRepository;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+import GenericUtilities.WebDriverUtility;
+
+public class MyInfoPage {
+
+    WebDriver driver;
+
+    WebDriverUtility webUtil;
+
+    public MyInfoPage(WebDriver driver) {
+
+        this.driver = driver;
+
+        webUtil = new WebDriverUtility();
+
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(name = "firstName")
+    private WebElement firstNameTF;
+
+    @FindBy(name = "lastName")
+    private WebElement lastNameTF;
+
+    @FindBy(xpath =  "//label[text()='Employee Id']/../following-sibling::div/input")
+    private WebElement employeeIdTF;
+
+    @FindBy(xpath = "(//button[contains(@class,'oxd-button--secondary')])[1]")
+    private WebElement saveButton;
+
+    public void enterFirstName(String firstName) {
+
+        firstNameTF.clear();
+
+        firstNameTF.sendKeys(firstName);
+    }
+
+    public void enterLastName(String lastName) {
+
+        lastNameTF.clear();
+
+        lastNameTF.sendKeys(lastName);
+    }
+
+    public void enterEmployeeId(String employeeId) {
+
+        employeeIdTF.clear();
+
+        employeeIdTF.sendKeys(employeeId);
+    }
+
+    public void clickSave() {
+
+        webUtil.click(driver,saveButton);
+    }
+
+    public String getFirstName() {
+
+        return firstNameTF.getAttribute("value");
+    }
+
+    public String getLastName() {
+
+        return lastNameTF.getAttribute("value");
+    }
+
+    public String getEmployeeId() {
+
+        return employeeIdTF.getAttribute("value");
+    }
+}
+
+// AddVacancyTest.java
+
+package TestScripts;
+
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import GenericUtilities.BaseClass;
+import ObjectRepository.AddVacancyPage;
+import ObjectRepository.HomePage;
+import ObjectRepository.LoginPage;
+import ObjectRepository.RecruitmentPage;
+
+public class AddVacancyTest extends BaseClass {
+
+    @Test
+    public void addVacancyTest()  throws EncryptedDocumentException, IOException {
+
+        // LOGIN
+
+        LoginPage loginPage =  new LoginPage(driver);
+
+        loginPage.login( fileUtil.getDataFromProperties( "username"), fileUtil.getDataFromProperties( "password"));
+
+        // HOME PAGE
+
+        HomePage homePage =  new HomePage(driver);
+
+        // Click Recruitment
+        homePage.clickRecruitment();
+
+        // RECRUITMENT
+
+        RecruitmentPage recruitmentPage = new RecruitmentPage(driver);
+
+        // Click Vacancies
+        recruitmentPage.clickVacancies();
+
+        // ADD VACANCY
+
+        AddVacancyPage vacancyPage = new AddVacancyPage(driver);
+
+        vacancyPage.clickAdd();
+
+        // Read data from Excel
+
+        String vacancyName = excelUtil.getDataFromExcel( "Vacancy", 1, 0);
+
+        String jobTitle = excelUtil.getDataFromExcel( "Vacancy", 1, 1);
+
+        String description = excelUtil.getDataFromExcel( "Vacancy", 1, 2);
+
+        String hiringManager = excelUtil.getDataFromExcel( "Vacancy", 1, 3);
+
+        String positions =  excelUtil.getDataFromExcel( "Vacancy", 1, 4);
+
+        // Enter Vacancy Name
+        vacancyPage.enterVacancyName( vacancyName);
+
+        // Select Job Title
+        vacancyPage.selectJobTitle( jobTitle);
+
+        // Enter Description
+        vacancyPage.enterDescription( description);
+
+        // Select Hiring Manager
+        vacancyPage.selectHiringManager( hiringManager);
+
+        // Enter Number of Positions
+        vacancyPage.enterNumberOfPositions( positions);
+
+        // Save
+        vacancyPage.clickSave();
+
+        // VALIDATION
+
+        Assert.assertTrue( driver.getCurrentUrl() .contains("recruitment"), "Vacancy was not saved");
+
+        System.out.println( "Vacancy created successfully");
+    }
+}
+
+
+//
+
+browser=chrome
+url=https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+username=Admin
+password=admin123
+
+//
+
+Vacancy Name	Job Title	Description	Hiring Manager	Positions
+Automation Engineer	Software Engineer	Selenium Automation Vacancy	John Smith	5
+
+
+
+//Testcase 2
+
+Login to orangeHrm application ->click on MyInfo link ->change employee first name, lastname ,employee id ->
+click on save->logut and then login again ->verify whether the edited details are updated-> logout
+
+
+// EditMyInfoTest.java
+
+package TestScripts;
+
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import GenericUtilities.BaseClass;
+import ObjectRepository.HomePage;
+import ObjectRepository.LoginPage;
+import ObjectRepository.MyInfoPage;
+
+public class EditMyInfoTest extends BaseClass {
+
+    @Test
+    public void editMyInfoTest() throws EncryptedDocumentException, IOException {
+
+        // LOGIN
+
+        LoginPage loginPage = new LoginPage(driver);
+
+        String username =  fileUtil.getDataFromProperties( "username");
+
+        String password = fileUtil.getDataFromProperties( "password");
+
+        loginPage.login( username,  password);
+
+        // MY INFO
+
+        HomePage homePage =  new HomePage(driver);
+
+        homePage.clickMyInfo();
+
+        MyInfoPage myInfoPage =  new MyInfoPage(driver);
+
+        // Read data from Excel
+
+        String firstName =  excelUtil.getDataFromExcel( "MyInfo", 1, 0);
+
+        String lastName = excelUtil.getDataFromExcel( "MyInfo", 1,  1);
+
+        String employeeId = excelUtil.getDataFromExcel( "MyInfo", 1, 2);
+
+        // EDIT DETAILS
+
+        myInfoPage.enterFirstName( firstName);
+
+        myInfoPage.enterLastName( lastName);
+
+        myInfoPage.enterEmployeeId( employeeId);
+
+        // Save
+        myInfoPage.clickSave();
+
+        System.out.println( "Employee details saved");
+
+        // LOGOUT
+
+        homePage.logout();
+
+        // LOGIN AGAIN
+
+        loginPage.login( username, password);
+
+        // OPEN MY INFO AGAIN
+
+        homePage.clickMyInfo();
+
+        // VERIFY UPDATED DETAILS
+
+        String actualFirstName = myInfoPage.getFirstName();
+
+        String actualLastName = myInfoPage.getLastName();
+
+        String actualEmployeeId = myInfoPage.getEmployeeId();
+
+        Assert.assertEquals( actualFirstName, firstName, "First Name is not updated");
+
+        Assert.assertEquals( actualLastName, lastName, "Last Name is not updated");
+
+        Assert.assertEquals( actualEmployeeId, employeeId, "Employee ID is not updated");
+
+        System.out.println( "Employee details verified successfully");
+
+        // FINAL LOGOUT
+
+        homePage.logout();
+    }
+}
+
